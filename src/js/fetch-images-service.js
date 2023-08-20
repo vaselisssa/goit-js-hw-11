@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
-console.log(axios.defaults);
 
 export default class ImagesApiService {
   constructor() {
