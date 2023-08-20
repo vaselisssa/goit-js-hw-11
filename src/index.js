@@ -1,19 +1,16 @@
-import axios from 'axios';
 import ImagesApiService from './js/fetch-images-service.js';
-// import cardsTemplate from './templates/cards.hbs';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
+import { renderCards } from './js/render-cards.js';
 
-const { searchForm, gallery, loadMoreBtn, endCollectionText } = {
+const { searchForm, gallery, loadMoreBtn } = {
   searchForm: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
   loadMoreBtn: document.querySelector('.load-more'),
-  endCollectionText: document.querySelector('.end-collection-text'),
 };
 
 const imageApiService = new ImagesApiService();
-const simpleLightbox = new SimpleLightbox('.gallery a');
+
+let currentHits = 0;
 
 searchForm.addEventListener('submit', onSearch);
 loadMoreBtn.addEventListener('click', onLoadMore);
@@ -22,49 +19,60 @@ async function onSearch(e) {
   e.preventDefault();
   imageApiService.query = e.currentTarget.elements.searchQuery.value.trim();
   imageApiService.resetPage();
-  gallery.innerHTML = '';
 
-  const images = await imageApiService.fetchImages();
-  console.log(images.hits);
-  renderCards(images.hits);
-  simpleLightbox.refresh();
+  if (imageApiService.query === '') {
+    Notify.failure(
+      'The search string cannot be empty. Please specify your search query.'
+    );
+    return;
+  }
+
+  const { hits, totalHits } = await imageApiService.fetchImages();
+  currentHits = hits.length;
+
+  if (totalHits > 40) {
+    loadMoreBtn.classList.remove('is-hidden');
+  } else {
+    loadMoreBtn.classList.add('is-hidden');
+  }
+  try {
+    if (totalHits > 0) {
+      Notify.success(`Hooray! We found ${totalHits} images.`);
+      gallery.innerHTML = '';
+      renderCards(hits);
+
+      const { height: cardHeight } = document
+        .querySelector('.gallery')
+        .firstElementChild.getBoundingClientRect();
+
+      window.scrollBy({
+        top: cardHeight * -100,
+        behavior: 'smooth',
+      });
+    }
+
+    if (totalHits === 0) {
+      gallery.innerHTML = '';
+      Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      loadMoreBtn.classList.add('is-hidden');
+      endCollectionText.classList.add('is-hidden');
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function onLoadMore(e) {
   imageApiService.incrementPage();
-  simpleLightbox.destroy();
-  const images = await imageApiService.fetchImages();
-  simpleLightbox.refresh();
-}
+  const { hits, totalHits } = await imageApiService.fetchImages();
 
-function creatMarkup(array) {
-  return array
-    .map(
-      ({
-        id,
-        largeImageURL,
-        webformatURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) => ` <a class="gallery__link" href="${largeImageURL}">
-          <div class="gallery-item" id="${id}">
-            <img class="gallery-item__img" src="${webformatURL}" alt="${tags}" loading="lazy" />
-            <div class="info">
-              <p class="info-item"><b>Likes</b>${likes}</p>
-              <p class="info-item"><b>Views</b>${views}</p>
-              <p class="info-item"><b>Comments</b>${comments}</p>
-              <p class="info-item"><b>Downloads</b>${downloads}</p>
-            </div>
-          </div>
-        </a>
-`
-    )
-    .join('');
-}
+  renderCards(hits);
+  currentHits += hits.length;
 
-function renderCards(data) {
-  gallery.insertAdjacentHTML('beforeend', creatMarkup(data));
+  if (currentHits === totalHits) {
+    loadMoreBtn.classList.add('is-hidden');
+    endCollectionText.classList.remove('is-hidden');
+  }
 }

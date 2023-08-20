@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://pixabay.com/api';
+axios.defaults.baseURL = 'https://pixabay.com/api/';
+console.log(axios.defaults);
 
 export default class ImagesApiService {
   constructor() {
@@ -17,7 +18,7 @@ export default class ImagesApiService {
   }
 
   async fetchImages() {
-    const response = await axios.get(`/`, {
+    const response = await axios.get('', {
       params: this.searchParams,
     });
 
