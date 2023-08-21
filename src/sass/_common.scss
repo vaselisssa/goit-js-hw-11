@@ -101,6 +101,7 @@ p {
   &:hover,
   &:focus {
     transform: scale(1.01);
+    text-decoration: none;
   }
 }
 
