@@ -69,10 +69,11 @@ p {
   &:focus {
     background-color: #0f3443;
     color: #ffffff;
+    border-color: #000000;
   }
 }
 
-.container {
+.gallery-container {
   margin: 0 auto;
   margin-top: 110px;
   padding: 0 10px 0 10px;
@@ -81,6 +82,7 @@ p {
 }
 
 .gallery {
+  width: 100%;
   justify-content: center;
   gap: 10px;
   display: flex;
@@ -91,7 +93,7 @@ p {
   min-width: 300px;
   flex-basis: calc((100% - 40px) / 4);
   box-shadow: 0px 3px 8px 0px rgba(0, 0, 0, 0.5);
-  border: 2px solid rgb(241, 238, 238);
+  border: none;
   border-radius: 10px;
   overflow: hidden;
   transition: all 0.3s;
@@ -131,7 +133,7 @@ p {
   font-size: 10px;
 }
 
-.load-more {
+.button {
   width: 200px;
   height: 40px;
 
@@ -144,6 +146,8 @@ p {
 
   border: 1px solid;
   border-radius: 5px;
+  background-color: #0f3443;
+  color: #ffffff;
 
   cursor: pointer;
   transition: background-color 300ms linear, color 300ms linear;
@@ -151,10 +155,19 @@ p {
   &:hover,
   &:focus {
     background-color: #0f3443;
-    color: #ffffff;
   }
 
   &.is-hidden {
     display: none;
   }
+
+  & > .spinner.is-hidden {
+    display: none;
+  }
+}
+
+.btn-primary:disabled {
+  color: #000000;
+  background-color: #ebebeb;
+  border-color: #000000;
 }

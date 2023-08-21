@@ -12,7 +12,6 @@ export default class ImagesApiService {
       page: 1,
       per_page: 40,
       q: '',
-      endOfResults: false,
     };
   }
 
@@ -30,8 +29,13 @@ export default class ImagesApiService {
   resetPage() {
     this.searchParams.page = 1;
   }
-  setEndOfResults(boolean) {
-    this.searchParams.endOfResults = boolean;
+
+  get perPage() {
+    return this.searchParams.per_page;
+  }
+
+  set perPage(newQuantity) {
+    this.searchParams.per_page = newQuantity;
   }
 
   get query() {
